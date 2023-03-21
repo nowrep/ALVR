@@ -41,6 +41,9 @@ public:
 	int32_t m_recommendedTargetWidth;
 	int32_t m_recommendedTargetHeight;
 
+	float m_upscaleFactor;
+	int32_t m_upscaleSharpness;
+
 	float m_flSecondsFromVsyncToPhotons;
 	float m_flIPD;
 

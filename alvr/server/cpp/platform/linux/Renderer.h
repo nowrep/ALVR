@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <memory>
 #include <iostream>
 #include <vulkan/vulkan.h>
 
@@ -78,6 +79,7 @@ public:
         VkDeviceMemory memory = VK_NULL_HANDLE;
         VkSemaphore semaphore = VK_NULL_HANDLE;
         VkImageView view = VK_NULL_HANDLE;
+        VkExtent2D imageSize = {0, 0};
     };
 
     struct StagingImage {
@@ -114,7 +116,7 @@ public:
     VkQueue m_queue = VK_NULL_HANDLE;
     uint32_t m_queueFamilyIndex = 0;
     VkFormat m_format = VK_FORMAT_UNDEFINED;
-    VkExtent2D m_imageSize = {0, 0};
+    VkExtent2D m_stagingSize = {0, 0};
     VkQueryPool m_queryPool = VK_NULL_HANDLE;
     VkCommandPool m_commandPool = VK_NULL_HANDLE;
     VkSampler m_sampler = VK_NULL_HANDLE;
@@ -136,10 +138,11 @@ public:
     void SetShader(const char *filename);
     void SetShader(const unsigned char *data, unsigned len);
     void SetConstants(const void *data, uint32_t size, std::vector<VkSpecializationMapEntry> &&entries);
+    void SetPixelsPerGroup(uint32_t x, uint32_t y);
 
 private:
     void Build();
-    void Render(VkImageView in, VkImageView out, VkRect2D outSize);
+    void Render(VkImageView in, VkImageView out, VkExtent2D outSize);
 
     Renderer *r;
     VkShaderModule m_shader = VK_NULL_HANDLE;
@@ -148,6 +151,8 @@ private:
     std::vector<VkSpecializationMapEntry> m_constantEntries;
     VkPipeline m_pipeline = VK_NULL_HANDLE;
     VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
+    uint32_t m_pixelsGroupX = 8;
+    uint32_t m_pixelsGroupY = 8;
 
     friend class Renderer;
 };

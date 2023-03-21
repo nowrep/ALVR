@@ -9,16 +9,31 @@
 FrameRender::FrameRender(alvr::VkContext &ctx, init_packet &init, int fds[])
     : Renderer(ctx.get_vk_instance(), ctx.get_vk_device(), ctx.get_vk_phys_device(), ctx.get_vk_queue_family_index(), ctx.get_vk_device_extensions())
 {
-    Startup(init.image_create_info.extent.width, init.image_create_info.extent.height, init.image_create_info.format);
+    VkFormat format = init.image_create_info.format;
+    m_width = init.image_create_info.extent.width;
+    m_height = init.image_create_info.extent.height;
+
+    Info("FrameRender: Input size %ux%u", m_width, m_height);
+
+    if (Settings::Instance().m_upscaleFactor > 1.0) {
+        m_upscaler = std::make_unique<Upscaler>(this, Upscaler::FSR, format, m_width, m_height, Settings::Instance().m_upscaleFactor, Settings::Instance().m_upscaleSharpness);
+        m_width = m_upscaler->GetOutput().width;
+        m_height = m_upscaler->GetOutput().height;
+        Info("FrameRender: Upscaled size %ux%u", m_width, m_height);
+    }
+
+    Startup(m_width, m_height, format);
 
     for (size_t i = 0; i < 3; ++i) {
         AddImage(init.image_create_info, init.mem_index, fds[2 * i], fds[2 * i + 1]);
     }
 
-    m_width = Settings::Instance().m_renderWidth;
-    m_height = Settings::Instance().m_renderHeight;
-
-    Info("FrameRender: Input size %ux%u", m_width, m_height);
+    if (m_upscaler) {
+        for (RenderPipeline *p : m_upscaler->GetPipelines()) {
+            m_pipelines.push_back(p);
+            AddPipeline(p);
+        }
+    }
 
     setupCustomShaders("pre");
 

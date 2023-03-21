@@ -194,6 +194,10 @@ fn try_connect(
         align32(stream_view_resolution.x),
         align32(stream_view_resolution.y),
     );
+    let scaled_stream_view_resolution = UVec2::new(
+        (stream_view_resolution.x as f32 * settings.video.upscale_factor) as u32,
+        (stream_view_resolution.y as f32 * settings.video.upscale_factor) as u32,
+    );
 
     let target_view_resolution = match settings.video.recommended_target_resolution {
         FrameSize::Scale(scale) => streaming_caps.default_view_resolution.as_vec2() * scale,
@@ -256,7 +260,7 @@ fn try_connect(
             let session = SERVER_DATA_MANAGER.read().session().clone();
             serde_json::to_string(&session).map_err(to_int_e!())?
         },
-        view_resolution: stream_view_resolution,
+        view_resolution: scaled_stream_view_resolution,
         fps,
         game_audio_sample_rate,
     };
@@ -365,6 +369,8 @@ fn try_connect(
         eye_resolution_height: stream_view_resolution.y,
         target_eye_resolution_width: target_view_resolution.x,
         target_eye_resolution_height: target_view_resolution.y,
+        upscale_factor: settings.video.upscale_factor,
+        upscale_sharpness: settings.video.upscale_sharpness,
         seconds_from_vsync_to_photons: settings.video.seconds_from_vsync_to_photons,
         tracking_ref_only: settings.headset.tracking_ref_only,
         enable_vive_tracker_proxy: settings.headset.enable_vive_tracker_proxy,

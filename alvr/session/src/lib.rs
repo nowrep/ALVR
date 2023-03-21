@@ -37,6 +37,8 @@ pub struct OpenvrConfig {
     pub eye_resolution_height: u32,
     pub target_eye_resolution_width: u32,
     pub target_eye_resolution_height: u32,
+    pub upscale_factor: f32,
+    pub upscale_sharpness: u32,
     pub seconds_from_vsync_to_photons: f32,
     pub tracking_ref_only: bool,
     pub enable_vive_tracker_proxy: bool,

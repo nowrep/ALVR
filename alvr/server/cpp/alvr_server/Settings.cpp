@@ -60,6 +60,9 @@ void Settings::Load()
 		m_recommendedTargetWidth = config.get("target_eye_resolution_width").get<int64_t>() * 2;
 		m_recommendedTargetHeight = config.get("target_eye_resolution_height").get<int64_t>();
 
+		m_upscaleFactor = config.get("upscale_factor").get<double>();
+		m_upscaleSharpness = config.get("upscale_sharpness").get<int64_t>();
+
 		m_flSecondsFromVsyncToPhotons = (float)config.get("seconds_from_vsync_to_photons").get<double>();
 
 		m_flIPD = 0.063;

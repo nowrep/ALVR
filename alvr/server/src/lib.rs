@@ -106,6 +106,8 @@ static RGBTOYUV420_SHADER_COMP_SPV: &[u8] =
     include_bytes!("../cpp/platform/linux/shader/rgbtoyuv420.comp.spv");
 static FSR_EASU_SHADER_COMP_SPV: &[u8] =
     include_bytes!("../cpp/platform/linux/shader/fsr_easu.comp.spv");
+static FSR_EASU16_SHADER_COMP_SPV: &[u8] =
+    include_bytes!("../cpp/platform/linux/shader/fsr_easu16.comp.spv");
 static FSR_RCAS_SHADER_COMP_SPV: &[u8] =
     include_bytes!("../cpp/platform/linux/shader/fsr_rcas.comp.spv");
 
@@ -342,6 +344,8 @@ pub unsafe extern "C" fn HmdDriverFactory(
     RGBTOYUV420_SHADER_COMP_SPV_LEN = RGBTOYUV420_SHADER_COMP_SPV.len() as _;
     FSR_EASU_SHADER_COMP_SPV_PTR = FSR_EASU_SHADER_COMP_SPV.as_ptr();
     FSR_EASU_SHADER_COMP_SPV_LEN = FSR_EASU_SHADER_COMP_SPV.len() as _;
+    FSR_EASU16_SHADER_COMP_SPV_PTR = FSR_EASU16_SHADER_COMP_SPV.as_ptr();
+    FSR_EASU16_SHADER_COMP_SPV_LEN = FSR_EASU16_SHADER_COMP_SPV.len() as _;
     FSR_RCAS_SHADER_COMP_SPV_PTR = FSR_RCAS_SHADER_COMP_SPV.as_ptr();
     FSR_RCAS_SHADER_COMP_SPV_LEN = FSR_RCAS_SHADER_COMP_SPV.len() as _;
 

@@ -49,7 +49,7 @@ public:
         uint64_t renderComplete;
     };
 
-    explicit Renderer(const VkInstance &inst, const VkDevice &dev, const VkPhysicalDevice &physDev, uint32_t queueIdx, const std::vector<const char *> &devExtensions);
+    explicit Renderer(const VkInstance &inst, const VkDevice &dev, const VkPhysicalDevice &physDev, uint32_t queueIdx, const std::vector<const char *> &devExtensions, bool fp16);
     virtual ~Renderer();
 
     void Startup(uint32_t width, uint32_t height, VkFormat format);
@@ -115,6 +115,7 @@ public:
     VkPhysicalDevice m_physDev = VK_NULL_HANDLE;
     VkQueue m_queue = VK_NULL_HANDLE;
     uint32_t m_queueFamilyIndex = 0;
+    bool m_fp16 = false;
     VkFormat m_format = VK_FORMAT_UNDEFINED;
     VkExtent2D m_stagingSize = {0, 0};
     VkQueryPool m_queryPool = VK_NULL_HANDLE;

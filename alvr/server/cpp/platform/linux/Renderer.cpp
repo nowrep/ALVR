@@ -35,11 +35,12 @@ static uint32_t to_drm_format(VkFormat format)
     }
 }
 
-Renderer::Renderer(const VkInstance &inst, const VkDevice &dev, const VkPhysicalDevice &physDev, uint32_t queueIdx, const std::vector<const char*> &devExtensions)
+Renderer::Renderer(const VkInstance &inst, const VkDevice &dev, const VkPhysicalDevice &physDev, uint32_t queueIdx, const std::vector<const char*> &devExtensions, bool fp16)
     : m_inst(inst)
     , m_dev(dev)
     , m_physDev(physDev)
     , m_queueFamilyIndex(queueIdx)
+    , m_fp16(fp16)
 {
     auto checkExtension = [devExtensions](const char *name) {
         return std::find_if(devExtensions.begin(), devExtensions.end(), [name](const char *ext) { return strcmp(ext, name) == 0; }) != devExtensions.end();

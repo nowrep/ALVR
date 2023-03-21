@@ -42,7 +42,11 @@ void Upscaler::initFSR()
 
     // EASU
     RenderPipeline *easu = new RenderPipeline(r);
-    easu->SetShader(FSR_EASU_SHADER_COMP_SPV_PTR, FSR_EASU_SHADER_COMP_SPV_LEN);
+    if (r->m_fp16) {
+        easu->SetShader(FSR_EASU16_SHADER_COMP_SPV_PTR, FSR_EASU16_SHADER_COMP_SPV_LEN);
+    } else {
+        easu->SetShader(FSR_EASU_SHADER_COMP_SPV_PTR, FSR_EASU_SHADER_COMP_SPV_LEN);
+    }
 
     FsrEasuCon(&m_fsrEasuConstants.con0, &m_fsrEasuConstants.con1, &m_fsrEasuConstants.con2, &m_fsrEasuConstants.con3,
                m_width, m_height, m_width, m_height, m_output.width, m_output.height);

@@ -98,6 +98,8 @@ extern "C" const unsigned char *RGBTOYUV420_SHADER_COMP_SPV_PTR;
 extern "C" unsigned int RGBTOYUV420_SHADER_COMP_SPV_LEN;
 extern "C" const unsigned char *FSR_EASU_SHADER_COMP_SPV_PTR;
 extern "C" unsigned int FSR_EASU_SHADER_COMP_SPV_LEN;
+extern "C" const unsigned char *FSR_EASU16_SHADER_COMP_SPV_PTR;
+extern "C" unsigned int FSR_EASU16_SHADER_COMP_SPV_LEN;
 extern "C" const unsigned char *FSR_RCAS_SHADER_COMP_SPV_PTR;
 extern "C" unsigned int FSR_RCAS_SHADER_COMP_SPV_LEN;
 

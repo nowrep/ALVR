@@ -5,27 +5,20 @@
 class Upscaler
 {
 public:
-    enum Method {
-        FSR,
-        NIS
-    };
-
     struct Output {
         uint32_t width = 0;
         uint32_t height = 0;
     };
 
-    Upscaler(Renderer *render, Method method, VkFormat format, uint32_t width, uint32_t height, float scale, uint32_t sharpness);
+    Upscaler(Renderer *render, VkFormat format, uint32_t width, uint32_t height, float scale, uint32_t sharpness);
 
     Output GetOutput();
     std::vector<RenderPipeline*> GetPipelines();
 
 private:
     void initFSR();
-    void initNIS();
 
     Renderer *r;
-    Method m_method;
     uint32_t m_width;
     uint32_t m_height;
     float m_scale;

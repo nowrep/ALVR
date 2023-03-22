@@ -7,23 +7,16 @@
 #include "shader/ffx_a.h"
 #include "shader/ffx_fsr1.h"
 
-Upscaler::Upscaler(Renderer *render, Method method, VkFormat format, uint32_t width, uint32_t height, float scale, uint32_t sharpness)
+Upscaler::Upscaler(Renderer *render, VkFormat format, uint32_t width, uint32_t height, float scale, uint32_t sharpness)
     : r(render)
-    , m_method(method)
     , m_width(width)
     , m_height(height)
-    , m_scale(scale)
-    , m_sharpness(sharpness)
+    , m_scale(std::max(2.0f, scale))
+    , m_sharpness(std::max(20u, sharpness))
 {
-    m_output.width = m_width * m_scale; // align?
-    m_output.height = m_height * m_scale; // align?
-    if (m_method == FSR) {
-        initFSR();
-    } else if (m_method == NIS) {
-        initNIS();
-    } else {
-        throw std::runtime_error("Upscaler: Unknown method");
-    }
+    m_output.width = m_width * m_scale;
+    m_output.height = m_height * m_scale;
+    initFSR();
 }
 
 Upscaler::Output Upscaler::GetOutput()
@@ -92,8 +85,4 @@ void Upscaler::initFSR()
     rcas->SetPixelsPerGroup(16, 16);
 
     m_pipelines.push_back(rcas);
-}
-
-void Upscaler::initNIS()
-{
 }

@@ -1,4 +1,5 @@
 #include "FrameRender.h"
+#include "Upscaler.h"
 #include "alvr_server/Settings.h"
 #include "alvr_server/Logger.h"
 #include "alvr_server/bindings.h"
@@ -9,6 +10,7 @@
 FrameRender::FrameRender(alvr::VkContext &ctx, init_packet &init, int fds[])
     : Renderer(ctx.get_vk_instance(), ctx.get_vk_device(), ctx.get_vk_phys_device(), ctx.get_vk_queue_family_index(), ctx.get_vk_device_extensions(), ctx.fp16)
 {
+    std::unique_ptr<Upscaler> upscaler;
     VkFormat format = init.image_create_info.format;
     m_width = init.image_create_info.extent.width;
     m_height = init.image_create_info.extent.height;
@@ -16,9 +18,9 @@ FrameRender::FrameRender(alvr::VkContext &ctx, init_packet &init, int fds[])
     Info("FrameRender: Input size %ux%u", m_width, m_height);
 
     if (Settings::Instance().m_upscaleFactor > 1.0) {
-        m_upscaler = std::make_unique<Upscaler>(this, Upscaler::FSR, format, m_width, m_height, Settings::Instance().m_upscaleFactor, Settings::Instance().m_upscaleSharpness);
-        m_width = m_upscaler->GetOutput().width;
-        m_height = m_upscaler->GetOutput().height;
+        upscaler = std::make_unique<Upscaler>(this, format, m_width, m_height, Settings::Instance().m_upscaleFactor, Settings::Instance().m_upscaleSharpness);
+        m_width = upscaler->GetOutput().width;
+        m_height = upscaler->GetOutput().height;
         Info("FrameRender: Upscaled size %ux%u", m_width, m_height);
     }
 
@@ -28,9 +30,8 @@ FrameRender::FrameRender(alvr::VkContext &ctx, init_packet &init, int fds[])
         AddImage(init.image_create_info, init.mem_index, fds[2 * i], fds[2 * i + 1]);
     }
 
-    if (m_upscaler) {
-        for (RenderPipeline *p : m_upscaler->GetPipelines()) {
-            m_pipelines.push_back(p);
+    if (upscaler) {
+        for (RenderPipeline *p : upscaler->GetPipelines()) {
             AddPipeline(p);
         }
     }
@@ -50,7 +51,6 @@ FrameRender::FrameRender(alvr::VkContext &ctx, init_packet &init, int fds[])
     if (m_pipelines.empty()) {
         RenderPipeline *pipeline = new RenderPipeline(this);
         pipeline->SetShader(QUAD_SHADER_COMP_SPV_PTR, QUAD_SHADER_COMP_SPV_LEN);
-        m_pipelines.push_back(pipeline);
         AddPipeline(pipeline);
     }
 
@@ -100,7 +100,6 @@ void FrameRender::setupColorCorrection()
     RenderPipeline *pipeline = new RenderPipeline(this);
     pipeline->SetShader(COLOR_SHADER_COMP_SPV_PTR, COLOR_SHADER_COMP_SPV_LEN);
     pipeline->SetConstants(&m_colorCorrectionPushConstants, sizeof(m_colorCorrectionPushConstants), std::move(entries));
-    m_pipelines.push_back(pipeline);
     AddPipeline(pipeline);
 }
 
@@ -163,7 +162,6 @@ void FrameRender::setupFoveatedRendering()
     RenderPipeline *pipeline = new RenderPipeline(this);
     pipeline->SetShader(FFR_SHADER_COMP_SPV_PTR, FFR_SHADER_COMP_SPV_LEN);
     pipeline->SetConstants(&m_foveatedRenderingPushConstants, sizeof(m_foveatedRenderingPushConstants), std::move(entries));
-    m_pipelines.push_back(pipeline);
     AddPipeline(pipeline);
 }
 
@@ -182,7 +180,6 @@ void FrameRender::setupCustomShaders(const std::string &stage)
             Info("FrameRender: Adding [%s] shader %s", stage.c_str(), entry.path().filename().c_str());
             RenderPipeline *pipeline = new RenderPipeline(this);
             pipeline->SetShader(entry.path().c_str());
-            m_pipelines.push_back(pipeline);
             AddPipeline(pipeline);
         }
     } catch (...) { }

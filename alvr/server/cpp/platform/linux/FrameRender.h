@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Renderer.h"
-#include "Upscaler.h"
 #include "ffmpeg_helper.h"
 #include "protocol.h"
 
@@ -45,6 +44,4 @@ private:
     uint32_t m_height;
     ColorCorrection m_colorCorrectionPushConstants;
     FoveationVars m_foveatedRenderingPushConstants;
-    std::vector<RenderPipeline*> m_pipelines;
-    std::unique_ptr<Upscaler> m_upscaler;
 };

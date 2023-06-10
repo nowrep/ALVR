@@ -28,6 +28,7 @@ class display {
     std::mutex m_mutex;
     std::condition_variable m_cond;
     std::atomic_bool m_signaled = false;
+    int m_socket = -1;
 };
 
 } // namespace wsi

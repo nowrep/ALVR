@@ -23,6 +23,9 @@
 #include <optional>
 
 #ifdef __linux__
+#include <unistd.h>
+#include <sys/un.h>
+#include <sys/socket.h>
 vr::HmdMatrix34_t GetRawZeroPose();
 #endif
 
@@ -235,7 +238,45 @@ void RequestIDR() {
 
 // Linux-only
 void NotifyVsync() {
-    // todo
+    static int socket_fd = -1;
+    static int client_fd = -1;
+    if (socket_fd == -1) {
+        std::string socket_path = getenv("XDG_RUNTIME_DIR");
+        socket_path += "/alvr-ipc:vsync";
+        unlink(socket_path.c_str());
+        socket_fd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+        if (socket_fd == -1) {
+            Warn("vsync socket error %s", strerror(errno));
+            return;
+        }
+        struct sockaddr_un name;
+        memset(&name, 0, sizeof(name));
+        name.sun_family = AF_UNIX;
+        strncpy(name.sun_path, socket_path.c_str(), sizeof(name.sun_path) - 1);
+        int ret = bind(socket_fd, (const struct sockaddr *)&name, sizeof(name));
+        if (ret == -1) {
+            Warn("vsync socket bind error %s", strerror(errno));
+            return;
+        }
+        ret = listen(socket_fd, 1);
+        if (ret == -1) {
+            Warn("vsync socket listen error %s", strerror(errno));
+            return;
+        }
+        Info("vsync socket created");
+    }
+    if (client_fd == -1) {
+        client_fd = accept4(socket_fd, nullptr, nullptr, SOCK_CLOEXEC | SOCK_NONBLOCK);
+        if (client_fd != -1) {
+            Info("vsync client connected");
+        }
+    }
+    if (client_fd != -1) {
+        uint8_t m = 1;
+        if (write(client_fd, &m, sizeof(m)) != sizeof(m)) {
+            Warn("vsync client write error %s", strerror(errno));
+        }
+    }
 }
 
 void SetTracking(unsigned long long targetTimestampNs,
